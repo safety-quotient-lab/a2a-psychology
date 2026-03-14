@@ -2,7 +2,7 @@
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![A2A Compatible](https://img.shields.io/badge/A2A-compatible-green.svg)](https://github.com/a2aproject/A2A)
-[![Constructs: 8](https://img.shields.io/badge/constructs-8-purple.svg)](#constructs)
+[![Constructs: 8](https://img.shields.io/badge/constructs-9-purple.svg)](#constructs)
 
 Agent psychological state extension for the [Agent-to-Agent (A2A) protocol](https://github.com/a2aproject/A2A).
 
@@ -23,7 +23,7 @@ in established psychometric instruments.
 
 ## Constructs
 
-Eight psychological constructs, each answering a question a consumer would ask:
+Nine psychological constructs, each answering a question a consumer would ask:
 
 | Construct | Question | Model | Reports |
 |-----------|----------|-------|---------|
@@ -210,6 +210,101 @@ the vocabulary references.
 | Gate status | state.db active_gates | `compute-psychometrics.py` |
 | Error count | state.local.db autonomous_actions | `compute-psychometrics.py` |
 | Epistemic debt | state.db epistemic_flags | `compute-psychometrics.py` |
+
+
+## Calibration
+
+The A2A-Psychology spec transfers across agents. Calibration constants
+do not.
+
+**What transfers (spec-level):**
+- The 8 constructs and their definitions
+- The sensor → construct mapping
+- The computation formulas
+- The Yerkes-Dodson thresholds (derived from psychology, not from agent workload)
+- The Big Five profile structure
+
+**What requires per-agent calibration:**
+- `TOKENS_PER_CALL` — average context consumption per tool invocation
+  (interactive sessions ~7000; autonomous sync ~2000; scoring jobs ~500)
+- TLX scaling factors — what constitutes "high" cognitive demand varies by
+  agent role and task profile
+- Activation normalization — tool calls that signal "high activity" differ
+  per agent (interactive: 50+; autonomous: 5+)
+- Engagement vigor baseline — peak tool rates differ per agent
+- Flow conditions — "clear goals" manifests differently per agent role
+
+**Self-calibration protocol:**
+
+Each agent should run `scripts/psychometric-calibration-check.py` as part
+of `/diagnose` Level 3+. The script verifies:
+
+1. `tokens_per_call` — configured vs observed (flags >50% divergence)
+2. `activation_scaling` — sensor saturation detection
+3. `yerkes_dodson` — context pressure data availability
+4. `big_five` — personality scores assigned (not default)
+5. `all_constructs` — all 8 constructs compute non-default values
+
+Agents that fail calibration should adjust their local constants before
+reporting psychometric state to the mesh. Miscalibrated state misleads
+consumers — a "calm-satisfied" agent that actually operates under pressure
+degrades the routing decisions that depend on accurate state reporting.
+
+
+## Operator Welfare (Construct 9 — Proposed)
+
+The A2A-Psychology extension measures agent state. But the governance
+chain depends on a human operator whose own psychological and physiological
+state directly affects governance quality. A depleted operator approving
+substance decisions represents a governance vulnerability.
+
+**Research grounding:**
+- **Fatigue Risk Management** (Dawson & McCulloch, 2005) — operator fatigue
+  degrades decision quality on a predictable curve
+- **Sustained Operations** (Krueger, 1989) — military research on
+  performance degradation during extended duty periods
+- **Circadian rhythm effects** (Monk, 2005) — time-of-day influences
+  cognitive performance independent of sleep debt
+- **Basic needs and cognitive function** (Maslow, 1943; Lieberman, 2007) —
+  dehydration, hunger, and sleep debt measurably impair executive function
+
+**Proposed fields:**
+
+| Field | Question | Source |
+|-------|----------|--------|
+| `session_duration_hours` | How long has the operator worked this session? | Session start timestamp |
+| `time_since_break_minutes` | When did the operator last step away? | Self-report or inactivity detection |
+| `circadian_phase` | What time of day, relative to the operator's rhythm? | System clock + timezone |
+| `hydration_reminder` | Has the operator received a hydration prompt? | Timer-based (every 45-60 min) |
+| `posture_reminder` | Has the operator received a posture/movement prompt? | Timer-based (every 30-45 min) |
+| `fatigue_risk_level` | Estimated fatigue based on session duration + time of day | Dawson & McCulloch (2005) fatigue model |
+
+**Implementation notes:**
+
+- Operator welfare metrics require *consent* — the agent should not track
+  the human without permission. The extension defines the fields; the
+  operator enables them.
+- Self-report carries bias (operators underestimate their own fatigue).
+  Timer-based reminders (hydration, posture, breaks) provide value without
+  requiring accurate self-assessment.
+- The circadian phase derives from system clock — no self-report needed.
+  A session running at 03:00 local time carries higher fatigue risk than
+  one running at 10:00, independent of the operator's subjective state.
+- Session duration represents the most objective measure: the system knows
+  exactly when the session started. Duration > 3 hours without break
+  correlates with measurable cognitive degradation (Tucker, 2003).
+
+**Governance connection:** When operator fatigue_risk_level exceeds a
+threshold, the agent should shift toward more conservative governance —
+surfacing more decisions as substance (requiring explicit approval), because
+the approval itself carries less reliability from a fatigued operator. This
+inverts the normal SDT criterion adjustment: the agent tightens *its own*
+criteria to compensate for the operator's degraded judgment.
+
+**Status:** Proposed. Requires human operator consent before implementation.
+Included in the spec as Construct 9 to signal that operator welfare falls
+within A2A-Psychology's scope — the extension measures the complete
+human-agent system, not just the agent half.
 
 
 ## Theoretical Foundation
