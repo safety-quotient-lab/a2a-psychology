@@ -5,6 +5,21 @@
     "description": "This agent reports its psychological state \u2014 affect, personality, cognitive load, capacity, and engagement \u2014 derived from operational metrics. All measures describe processual states, not subjective experience.",
     "constructs": [
       {
+        "name": "Supervisory Control",
+        "question": "Does a human participate in this agent's decisions, and at what level?",
+        "model": "Sheridan & Verplank (1978); Parasuraman, Sheridan, & Wickens (2000)",
+        "reports": [
+          "level_of_automation",
+          "human_in_loop",
+          "human_on_loop",
+          "human_accountable",
+          "human_monitoring",
+          "escalation_path",
+          "circuit_breaker"
+        ],
+        "note": "The most consequential construct for external consumers. Reports the current human-agent governance relationship across four automation functions (sensing, analysis, decision, execution). A consumer interpreting any other construct needs this context first."
+      },
+      {
         "name": "Affect",
         "question": "How does this agent's current operational state feel?",
         "model": "PAD (Mehrabian & Russell, 1974)",

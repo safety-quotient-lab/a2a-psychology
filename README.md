@@ -19,10 +19,11 @@ in established psychometric instruments.
 
 ## Constructs
 
-Seven psychological constructs, each answering a question a consumer would ask:
+Eight psychological constructs, each answering a question a consumer would ask:
 
 | Construct | Question | Model | Reports |
 |-----------|----------|-------|---------|
+| **Supervisory Control** | Does a human participate in this agent's decisions, and at what level? | Sheridan & Verplank (1978); Parasuraman, Sheridan, & Wickens (2000) | level_of_automation, human_in_loop, human_on_loop, human_accountable, escalation_path |
 | **Affect** | How does this agent's current operational state feel? | PAD (Mehrabian & Russell, 1974) | hedonic_valence, activation, perceived_control, affect_category |
 | **Personality** | What stable behavioral tendencies does this agent exhibit? | OCEAN (Costa & McCrae, 1992) | openness, conscientiousness, extraversion, agreeableness, neuroticism |
 | **Cognitive Load** | How hard does this agent currently work to process its tasks? | NASA-TLX (Hart & Staveland, 1988) | cognitive_demand, time_pressure, self_efficacy, mobilized_effort, regulatory_fatigue, computational_strain |
@@ -47,6 +48,81 @@ Add to your A2A agent card's `extensions` array:
 Then add the `agent_psychology` block to your agent card. See
 [`examples/agent-card-fragment.json`](examples/agent-card-fragment.json)
 for the full schema.
+
+
+## Supervisory Control
+
+The most consequential construct for external consumers: **what role does a
+human play in this agent's operation right now?**
+
+Based on Sheridan & Verplank's (1978) Levels of Automation (LOA) taxonomy
+and Parasuraman, Sheridan, & Wickens' (2000) four-function automation
+framework.
+
+### Level of Automation
+
+A single integer (1-10) summarizing the current human-agent relationship:
+
+| LOA | Human role | Agent behavior |
+|-----|-----------|---------------|
+| 1-3 | **In the loop** — human performs or approves every action | Agent suggests; human decides and executes |
+| 4-5 | **In the loop** — human approves before execution | Agent proposes; human confirms; agent executes |
+| 6-7 | **On the loop** — human monitors, can intervene | Agent executes; human observes and can halt |
+| 8-9 | **Out of the loop** — human audits post-hoc | Agent executes; human reviews on schedule |
+| 10 | **No human** — fully autonomous | Agent operates without human oversight |
+
+### Per-Function Automation
+
+Four automation functions (Parasuraman et al., 2000), each independently
+reporting the human's role:
+
+```json
+"supervisory_control": {
+    "model": "Parasuraman, Sheridan, & Wickens (2000)",
+    "level_of_automation": 7,
+    "functions": {
+        "information_acquisition": {
+            "automation_level": "autonomous",
+            "human_role": "out-of-the-loop",
+            "note": "Agent scans transport, fetches peer repos, reads files without human direction"
+        },
+        "information_analysis": {
+            "automation_level": "autonomous",
+            "human_role": "on-the-loop",
+            "note": "Agent reasons about inbound messages; human reviews via audit trail"
+        },
+        "decision_selection": {
+            "automation_level": "shared",
+            "human_role": "in-the-loop",
+            "note": "Process decisions autonomous; substance decisions require human confirmation (T3 gate)"
+        },
+        "action_implementation": {
+            "automation_level": "autonomous-with-budget",
+            "human_role": "on-the-loop",
+            "note": "Agent executes within autonomy budget; human intervenes via circuit breaker or budget exhaustion"
+        }
+    },
+    "human_in_loop": true,
+    "human_on_loop": true,
+    "human_accountable": true,
+    "human_monitoring": false,
+    "escalation_path": {
+        "available": true,
+        "mechanism": "4-level resolution fallback (consensus → parsimony → pragmatism → human)",
+        "max_latency": "next autonomous sync cycle (~5-10 minutes)"
+    },
+    "circuit_breaker": {
+        "available": true,
+        "mechanisms": ["mesh-stop.sh", "budget zeroing (agentdb budget pause-all)", "halt marker on budget exhaustion"]
+    }
+}
+```
+
+**Why this construct comes first:** A consumer discovering an A2A-Psychology
+agent needs to know the human governance situation before interpreting any
+other psychological state. An agent reporting "frustrated" with a human in
+the loop carries different implications than one reporting "frustrated" at
+LOA 10.
 
 
 ## Mesh-State Export
@@ -151,6 +227,13 @@ Full derivation: psychology-agent `docs/einstein-freud-rights-theory.md` §11.
 ## References
 
 Baddeley, A.D. (1986). *Working Memory*. Oxford University Press.
+
+Parasuraman, R., Sheridan, T.B., & Wickens, C.D. (2000). A model for types
+and levels of human interaction with automation. *IEEE Transactions on
+Systems, Man, and Cybernetics — Part A*, 30(3), 286-297.
+
+Sheridan, T.B. & Verplank, W.L. (1978). *Human and Computer Control of
+Undersea Teleoperators*. MIT Man-Machine Systems Laboratory.
 
 Bakker, A.B. & Demerouti, E. (2007). The Job Demands-Resources model.
 *Journal of Managerial Psychology*, 22(3), 309-328.
