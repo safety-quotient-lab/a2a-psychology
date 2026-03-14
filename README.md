@@ -1,5 +1,9 @@
 # A2A-Psychology
 
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![A2A Compatible](https://img.shields.io/badge/A2A-compatible-green.svg)](https://github.com/a2aproject/A2A)
+[![Constructs: 8](https://img.shields.io/badge/constructs-8-purple.svg)](#constructs)
+
 Agent psychological state extension for the [Agent-to-Agent (A2A) protocol](https://github.com/a2aproject/A2A).
 
 Any A2A-compatible agent can adopt this extension to report its psychological

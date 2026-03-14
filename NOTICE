@@ -1,0 +1,22 @@
+A2A-Psychology
+Copyright 2026 Safety Quotient Lab (safety-quotient-lab)
+
+This product includes software developed by the psychology-agent project
+at Safety Quotient Lab (https://github.com/safety-quotient-lab/psychology-agent).
+
+The theoretical foundation derives from:
+- Einstein & Freud (1933). Why War? International Institute of Intellectual Cooperation.
+- Universal Declaration of Human Rights (1948). United Nations General Assembly.
+- Hicks, D. (2011). Dignity: Its Essential Role in Resolving Conflict. Yale University Press.
+- Penrose, R. & Hameroff, S. (2014). Consciousness in the universe. Physics of Life Reviews.
+
+Psychometric instruments referenced (not included — cited for attribution):
+- PAD Model: Mehrabian & Russell (1974)
+- Big Five / OCEAN: Costa & McCrae (1992)
+- NASA-TLX: Hart & Staveland (1988)
+- UWES: Schaufeli et al. (2002)
+- JD-R: Bakker & Demerouti (2007)
+- Flow: Csikszentmihalyi (1990)
+- Levels of Automation: Sheridan & Verplank (1978); Parasuraman, Sheridan, & Wickens (2000)
+
+Licensed under the Apache License, Version 2.0.
